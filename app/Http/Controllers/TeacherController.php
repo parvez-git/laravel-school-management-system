@@ -55,6 +55,16 @@ class TeacherController extends Controller
             'email'     => $request->email,
             'password'  => Hash::make($request->password)
         ]);
+        
+        if ($request->hasFile('profile_picture')) {
+            $profile = str_slug($user->name).'-'.$user->id.'.'.$request->profile_picture->getClientOriginalExtension();
+            $request->profile_picture->move(public_path('images/profile'), $profile);
+        } else {
+            $profile = 'avatar.png';
+        }
+        $user->update([
+            'profile_picture' => $profile
+        ]);
 
         $user->teacher()->create([
             'gender'            => $request->gender,
@@ -114,9 +124,17 @@ class TeacherController extends Controller
 
         $user = User::findOrFail($teacher->user_id);
 
+        if ($request->hasFile('profile_picture')) {
+            $profile = str_slug($user->name).'-'.$user->id.'.'.$request->profile_picture->getClientOriginalExtension();
+            $request->profile_picture->move(public_path('images/profile'), $profile);
+        } else {
+            $profile = $user->profile_picture;
+        }
+
         $user->update([
-            'name'  => $request->name,
-            'email' => $request->email
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'profile_picture'   => $profile
         ]);
 
         $user->teacher()->update([
@@ -141,7 +159,15 @@ class TeacherController extends Controller
         $user = User::findOrFail($teacher->user_id);
         $user->teacher()->delete();
         $user->removeRole('Teacher');
-        $user->delete();
+
+        if ($user->delete()) {
+            if($user->profile_picture != 'avatar.png') {
+                $image_path = public_path() . '/images/profile/' . $user->profile_picture;
+                if (is_file($image_path) && file_exists($image_path)) {
+                    unlink($image_path);
+                }
+            }
+        }
 
         return back();
     }

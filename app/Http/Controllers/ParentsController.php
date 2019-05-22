@@ -54,6 +54,16 @@ class ParentsController extends Controller
             'email'     => $request->email,
             'password'  => Hash::make($request->password)
         ]);
+        
+        if ($request->hasFile('profile_picture')) {
+            $profile = str_slug($user->name).'-'.$user->id.'.'.$request->profile_picture->getClientOriginalExtension();
+            $request->profile_picture->move(public_path('images/profile'), $profile);
+        } else {
+            $profile = 'avatar.png';
+        }
+        $user->update([
+            'profile_picture' => $profile
+        ]);
 
         $user->parent()->create([
             'gender'            => $request->gender,
@@ -111,9 +121,17 @@ class ParentsController extends Controller
             'permanent_address' => 'required|string|max:255'
         ]);
 
+        if ($request->hasFile('profile_picture')) {
+            $profile = str_slug($parents->user->name).'-'.$parents->user->id.'.'.$request->profile_picture->getClientOriginalExtension();
+            $request->profile_picture->move(public_path('images/profile'), $profile);
+        } else {
+            $profile = $parents->user->profile_picture;
+        }
+
         $parents->user()->update([
-            'name'  => $request->name,
-            'email' => $request->email
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'profile_picture'   => $profile
         ]);
 
         $parents->update([
@@ -138,7 +156,15 @@ class ParentsController extends Controller
 
         $user = User::findOrFail($parent->user_id);
         $user->removeRole('Parent');
-        $user->delete();
+
+        if ($user->delete()) {
+            if($user->profile_picture != 'avatar.png') {
+                $image_path = public_path() . '/images/profile/' . $user->profile_picture;
+                if (is_file($image_path) && file_exists($image_path)) {
+                    unlink($image_path);
+                }
+            }
+        }
 
         $parent->delete();
 

@@ -58,10 +58,18 @@ class StudentController extends Controller
             'permanent_address' => 'required|string|max:255'
         ]);
 
+        if ($request->hasFile('profile_picture')) {
+            $profile = str_slug(auth()->user()->name).'-'.auth()->id().'.'.$request->profile_picture->getClientOriginalExtension();
+            $request->profile_picture->move(public_path('images/profile'), $profile);
+        } else {
+            $profile = 'avatar.png';
+        }
+
         $user = User::create([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password)
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'password'          => Hash::make($request->password),
+            'profile_picture'   => $profile
         ]);
 
         $user->student()->create([
@@ -129,9 +137,17 @@ class StudentController extends Controller
             'permanent_address' => 'required|string|max:255'
         ]);
 
+        if ($request->hasFile('profile_picture')) {
+            $profile = str_slug(auth()->user()->name).'-'.auth()->id().'.'.$request->profile_picture->getClientOriginalExtension();
+            $request->profile_picture->move(public_path('images/profile'), $profile);
+        } else {
+            $profile = $student->user->profile_picture;
+        }
+
         $student->user()->update([
-            'name'      => $request->name,
-            'email'     => $request->email
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'profile_picture'   => $profile
         ]);
 
         $student->update([
@@ -159,7 +175,15 @@ class StudentController extends Controller
         $user = User::findOrFail($student->user_id);
         $user->student()->delete();
         $user->removeRole('Student');
-        $user->delete();
+
+        if ($user->delete()) {
+            if($user->profile_picture != 'avatar.png') {
+                $image_path = public_path() . '/images/profile/' . $user->profile_picture;
+                if (is_file($image_path) && file_exists($image_path)) {
+                    unlink($image_path);
+                }
+            }
+        }
 
         return back();
     }

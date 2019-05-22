@@ -42,7 +42,7 @@ class HomeController extends Controller
         } elseif ($user->hasRole('Teacher')) {
 
             $teacher = Teacher::with(['user','subjects','classes','students'])->withCount('subjects','classes')->findOrFail($user->teacher->id);
-// return $teacher;
+
             return view('home', compact('teacher'));
 
         } elseif ($user->hasRole('Parent')) {
