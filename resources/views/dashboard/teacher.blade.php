@@ -14,7 +14,7 @@
         </div>
         <div class="w-full bg-gray-200 text-center border border-gray-300 px-8 py-6 rounded">
             <h3 class="text-gray-700 uppercase font-bold">
-                <span class="text-4xl">1000</span>
+                <span class="text-4xl">{{ ($teacher->students[0]->students_count) ?? 0 }}</span>
                 <span class="leading-tight">Students</span>
             </h3>
         </div>

@@ -29,4 +29,9 @@ class Teacher extends Model
     {
         return $this->hasMany(Grade::class);
     }
+
+    public function students() 
+    {
+        return $this->classes()->withCount('students');
+    }
 }
