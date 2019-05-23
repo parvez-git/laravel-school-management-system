@@ -58,18 +58,20 @@ class StudentController extends Controller
             'permanent_address' => 'required|string|max:255'
         ]);
 
+        $user = User::create([
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'password'          => Hash::make($request->password)
+        ]);
+
         if ($request->hasFile('profile_picture')) {
-            $profile = str_slug(auth()->user()->name).'-'.auth()->id().'.'.$request->profile_picture->getClientOriginalExtension();
+            $profile = str_slug($user->name).'-'.$user->id.'.'.$request->profile_picture->getClientOriginalExtension();
             $request->profile_picture->move(public_path('images/profile'), $profile);
         } else {
             $profile = 'avatar.png';
         }
-
-        $user = User::create([
-            'name'              => $request->name,
-            'email'             => $request->email,
-            'password'          => Hash::make($request->password),
-            'profile_picture'   => $profile
+        $user->update([
+            'profile_picture' => $profile
         ]);
 
         $user->student()->create([
@@ -138,7 +140,7 @@ class StudentController extends Controller
         ]);
 
         if ($request->hasFile('profile_picture')) {
-            $profile = str_slug(auth()->user()->name).'-'.auth()->id().'.'.$request->profile_picture->getClientOriginalExtension();
+            $profile = str_slug($student->user->name).'-'.$student->user->id.'.'.$request->profile_picture->getClientOriginalExtension();
             $request->profile_picture->move(public_path('images/profile'), $profile);
         } else {
             $profile = $student->user->profile_picture;
