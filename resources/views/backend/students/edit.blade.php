@@ -111,7 +111,7 @@
                         </label>
                     </div>
                     <div class="md:w-2/3">
-                        <input name="dateofbirth" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="text" value="{{ $student->dateofbirth }}">
+                        <input name="dateofbirth" id="datepicker-se" autocomplete="off" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="text" value="{{ $student->dateofbirth }}">
                         @error('dateofbirth')
                             <p class="text-red-500 text-xs italic">{{ $message }}</p>
                         @enderror
@@ -215,3 +215,11 @@
         
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(function() {       
+        $( "#datepicker-se" ).datepicker({ dateFormat: 'yy-mm-dd' });
+    })
+</script>
+@endpush

@@ -12,6 +12,7 @@
   "devDependencies": {
     "cross-env": "^5.1",
     "jquery": "^3.2",
+    "jquery-ui": "^1.12.1",
     "laravel-mix": "^4.0.7",
     "lodash": "^4.17.5",
     "popper.js": "^1.12",
